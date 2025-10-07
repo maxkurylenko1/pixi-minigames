@@ -1,0 +1,8 @@
+.links {
+  padding: 10px 14px;
+  border-radius: 10px;
+  background: var(--bg);
+  color: #e8eefc;
+  text-decoration: none;
+  border: 1px solid #2a2f3a;
+}
