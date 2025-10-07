@@ -1,0 +1,32 @@
+/* ====== Reset / Base ====== */
+* {
+  box-sizing: border-box;
+}
+html,
+body,
+#root {
+  height: 100%;
+}
+body {
+  margin: 0;
+  font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+}
+
+/* ====== Theme tokens (CSS variables) ====== */
+:root {
+  --bg: #0e0f13;
+  --surface: #151821;
+  --border: #2a2f3a;
+  --text: #e8eefc;
+  --accent: #4cc9f0;
+  --accent-hover: #72d8f5;
+  --accent-down: #33bde6;
+}
+
+/* helpers */
+.container-full {
+  width: 100%;
+  height: 100%;
+}

@@ -1,0 +1,18 @@
+.app {
+  min-height: 100%;
+  display: flex;
+  flex-direction: column;
+  background: var(--bg);
+}
+
+.header {
+  display: flex;
+  gap: 10px;
+  padding: 12px;
+  border-bottom: 1px solid #2a2f3a;
+}
+
+.main {
+  flex: 1;
+  min-height: 0;
+}
