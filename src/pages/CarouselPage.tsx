@@ -5,6 +5,13 @@ import { loadDemoBundle } from "@/pixi/core/loadDemo";
 import { CarouselScene } from "@/pixi/scenes/carousel/CarouselScene";
 import type { Application, Container, Texture } from "pixi.js";
 
+/**
+ * CarouselPage
+ *
+ * Mounts a PixiStage and initializes the Carousel demo scene.
+ * - Shows a preloader while loading assets.
+ * - Creates and initializes CarouselScene with textures.
+ */
 export default function CarouselPage() {
   const setup = useCallback(
     async ({ app, root, ui }: { app: Application; root: Container; ui: Container }) => {

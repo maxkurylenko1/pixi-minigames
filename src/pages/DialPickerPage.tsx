@@ -5,6 +5,12 @@ import { DialScene } from "@/pixi/scenes/dial/DialScene";
 import type { Application, Container } from "pixi.js";
 import { loadDemoBundle } from "@/pixi/core/loadDemo";
 
+/**
+ * DialPickerPage
+ *
+ * Page component that mounts a Pixi stage and initializes the Dial demo scene.
+ * The setup callback performs async asset loading then constructs the scene.
+ */
 export default function DialPickerPage() {
   const setup = useCallback(
     async ({ app, root, ui }: { app: Application; root: Container; ui: Container }) => {

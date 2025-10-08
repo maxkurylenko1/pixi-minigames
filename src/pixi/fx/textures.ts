@@ -1,9 +1,21 @@
 import { Texture } from "pixi.js";
 
+/**
+ * Small helper functions that draw simple shapes on a Canvas and return
+ * PIXI.Texture instances. These are used by the FX system to create
+ * sprites (confetti, sparkles, coins, etc.) without external assets.
+ */
 function toCss(c: number) {
   return "#" + c.toString(16).padStart(6, "0");
 }
 
+/**
+ * Create a rounded rectangle texture.
+ * @param w width
+ * @param h height
+ * @param color hex color number
+ * @param radius optional corner radius
+ */
 export function rectTex(w: number, h: number, color: number, radius = 0) {
   const c = document.createElement("canvas");
   c.width = w;
@@ -26,6 +38,12 @@ export function rectTex(w: number, h: number, color: number, radius = 0) {
   return Texture.from(c);
 }
 
+/**
+ * Create a filled circle texture.
+ * @param diam diameter in pixels
+ * @param color hex color number
+ * @param alpha optional global alpha
+ */
 export function circleTex(diam: number, color: number, alpha = 1) {
   const r = diam / 2;
   const c = document.createElement("canvas");
@@ -39,6 +57,12 @@ export function circleTex(diam: number, color: number, alpha = 1) {
   return Texture.from(c);
 }
 
+/**
+ * Create a star-shaped texture.
+ * @param size canvas size
+ * @param color hex color number
+ * @param points star points count
+ */
 export function starTex(size: number, color: number, points = 5) {
   const c = document.createElement("canvas");
   c.width = c.height = size;
@@ -58,6 +82,10 @@ export function starTex(size: number, color: number, points = 5) {
   return Texture.from(c);
 }
 
+/**
+ * Create a simple coin texture with radial gradient and highlight.
+ * @param size canvas size
+ */
 export function coinTex(size: number) {
   const c = document.createElement("canvas");
   c.width = c.height = size;

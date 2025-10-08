@@ -1,3 +1,14 @@
+/**
+ * Tween utilities
+ *
+ * Lightweight timing helper that interpolates a numeric value over time.
+ * - ease: common easing functions
+ * - tween(opts): returns a Promise and calls onUpdate/onComplete; supports AbortSignal.
+ *
+ * Usage:
+ * await tween({ from: 0, to: 1, duration: 200, onUpdate: v => ..., signal });
+ */
+
 export type Ease = (t: number) => number;
 
 export const ease = {

@@ -1,5 +1,14 @@
 import { Texture } from "pixi.js";
 
+/**
+ * Scratch helpers
+ *
+ * Tiny canvas-based texture generators used by the scratch scene:
+ * - makeFoilTexture(size): creates a repeating foil texture for the scratched surface.
+ * - makeLinearGradientTexture(w, h, stops): creates a linear gradient texture.
+ *
+ * These helpers return PIXI.Texture objects created from an offscreen canvas.
+ */
 export function makeFoilTexture(size = 96): Texture {
   const cvs = document.createElement("canvas");
   cvs.width = size;

@@ -16,6 +16,19 @@ import {
 import { mix, shade } from "@/pixi/utils/colors";
 import { clamp, ensureAhead, mapRange, randInt } from "./helpers";
 
+/**
+ * DialScene
+ *
+ * Rotating wheel / dial demo:
+ * - Builds a segmented wheel with labels and an indicator.
+ * - Supports pointer drag to interactively rotate the wheel and a programmatic spin.
+ * - spinRandom(direction, extraTurns) animates a spin and highlights the selected sector.
+ *
+ * Usage:
+ *  const scene = new DialScene(app, root, ui);
+ *  await scene.init();
+ *  scene.destroy();
+ */
 export class DialScene {
   private app: Application;
   private root: Container;

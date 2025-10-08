@@ -1,3 +1,12 @@
+/**
+ * Dial scene helpers
+ *
+ * Utility math functions used by the dial (wheel) scene:
+ * - randInt(a,b): random integer in [a,b]
+ * - clamp(v,a,b): clamp value between a and b
+ * - mapRange(x,inMin,inMax,outMin,outMax): linear mapping with clamp
+ * - ensureAhead(current,target,dir): ensure `target` angle lies ahead of `current` in given direction
+ */
 export function randInt(a: number, b: number) {
   return Math.floor(a + Math.random() * (b - a + 1));
 }

@@ -2,6 +2,21 @@ import { Application, Container, Sprite, Graphics, Texture, Ticker } from "pixi.
 import { tween, ease } from "@/pixi/utils/tween";
 import { rectTex, starTex, coinTex } from "./textures";
 
+/**
+ * FX
+ *
+ * Lightweight particle / visual effects manager.
+ * Usage:
+ *  const fx = new FX(app, layer);
+ *  fx.confettiBurst(x, y);
+ *  await fx.flash();
+ *  fx.destroy();
+ *
+ * Provides:
+ * - confettiBurst, coinBurst, sparkles, winRays
+ * - flash (screen overlay) and shake (container jitter)
+ */
+
 type P = Sprite & {
   vx: number;
   vy: number;
@@ -44,6 +59,9 @@ export class FX {
     this.app.ticker.add(this.tickerFn);
   }
 
+  /**
+   * Clean up all particles and remove ticker handler.
+   */
   destroy() {
     this.app.ticker.remove(this.tickerFn);
     for (const p of this.particles) p.destroy();
@@ -52,6 +70,12 @@ export class FX {
     this.effects.clear();
   }
 
+  /**
+   * Spawn a burst of rectangular confetti pieces.
+   * @param x world x
+   * @param y world y
+   * @param opts.count optional particle count
+   */
   confettiBurst(x: number, y: number, opts?: { count?: number }) {
     const count = opts?.count ?? 48;
     for (let i = 0; i < count; i++) {
@@ -79,6 +103,9 @@ export class FX {
     }
   }
 
+  /**
+   * Spawn a coin burst (round coin sprites with physics-like motion).
+   */
   coinBurst(x: number, y: number, opts?: { count?: number }) {
     const count = opts?.count ?? 18;
     for (let i = 0; i < count; i++) {
@@ -100,6 +127,9 @@ export class FX {
     }
   }
 
+  /**
+   * Spawn a number of sparkles around a point.
+   */
   sparkles(x: number, y: number, radius = 48, count = 18) {
     for (let i = 0; i < count; i++) {
       const a = Math.random() * Math.PI * 2;
@@ -123,6 +153,9 @@ export class FX {
     }
   }
 
+  /**
+   * Create animated win rays (transient Graphics group).
+   */
   winRays(x: number, y: number, opts?: { rays?: number; color?: number; lifeMs?: number }) {
     const rays = opts?.rays ?? 16;
     const color = opts?.color ?? 0xf1f5f9;
@@ -162,6 +195,9 @@ export class FX {
     });
   }
 
+  /**
+   * Flash overlay animation.
+   */
   async flash(color = 0xffffff, alpha = 0.35, duration = 220) {
     const overlay = new Graphics()
       .rect(0, 0, this.app.renderer.width, this.app.renderer.height)
@@ -185,6 +221,9 @@ export class FX {
     overlay.destroy();
   }
 
+  /**
+   * Shake a container by temporarily changing its position.
+   */
   async shake(target: Container, intensity = 6, duration = 300) {
     const baseX = target.x,
       baseY = target.y;
@@ -202,6 +241,9 @@ export class FX {
     target.position.set(baseX, baseY);
   }
 
+  /**
+   * Internal per-frame update for particles. Should not be called externally.
+   */
   private update(deltaMS: number) {
     const dt = Math.min(deltaMS, 50);
     const k = dt / 16.6667;

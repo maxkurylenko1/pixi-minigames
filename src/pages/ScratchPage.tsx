@@ -5,6 +5,13 @@ import { loadDemoBundle } from "@/pixi/core/loadDemo";
 import { ScratchScene } from "@/pixi/scenes/scratch/ScratchScene";
 import type { Application, Container, Texture } from "pixi.js";
 
+/**
+ * ScratchPage
+ *
+ * Mounts a PixiStage and runs the Scratch demo scene.
+ * - Displays a preloader while assets load.
+ * - Initializes ScratchScene with loaded textures.
+ */
 export default function ScratchPage() {
   const setup = useCallback(
     async ({ app, root, ui }: { app: Application; root: Container; ui: Container }) => {
