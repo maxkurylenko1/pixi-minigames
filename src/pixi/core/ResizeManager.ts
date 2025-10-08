@@ -29,7 +29,7 @@ export class ResizeManager {
   private handle = () => {
     const w = this.app.renderer.width;
     const h = this.app.renderer.height;
-    const s = Math.min(w / this.baseW, h / this.baseH);
+    const s = Math.min(w / this.baseW + 0.1, h / this.baseH + 0.1);
     this.root.scale.set(s);
     this.root.position.set((w - this.baseW * s) / 2, (h - this.baseH * s) / 2);
   };
