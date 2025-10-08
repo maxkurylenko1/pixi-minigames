@@ -96,7 +96,6 @@ export class CarouselScene {
 
     this.rail.y = this.alignY;
     this.blur = new BlurFilter({ strength: 0, quality: 2 });
-    this.rail.filters = [this.blur];
 
     // 4) UI: buttons + label
     const btnTex = Button.makeBaseTexture(this.app.renderer, 64, 14);
@@ -142,6 +141,7 @@ export class CarouselScene {
     this.state = "spinning";
     this.startBtn.eventMode = "none";
     this.stopBtn.eventMode = "none";
+    this.rail.filters = [this.blur];
 
     await tween({
       from: 0,
