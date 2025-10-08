@@ -1,3 +1,22 @@
+import { useCallback } from "react";
+import PixiStage from "@/components/PixiStage";
+import { Preloader } from "@/pixi/ui/Preloader";
+import { DialScene } from "@/pixi/scenes/dial/DialScene";
+import type { Application, Container } from "pixi.js";
+
 export default function DialPickerPage() {
-  return <div style={{ padding: 24, color: "#fff" }}>Dial Picker — soon</div>;
+  const setup = useCallback(
+    async ({ app, root, ui }: { app: Application; root: Container; ui: Container }) => {
+      const preloader = new Preloader();
+      root.addChild(preloader);
+      root.removeChild(preloader);
+      preloader.destroy();
+
+      const scene = new DialScene(app, root, ui);
+      await scene.init();
+    },
+    []
+  );
+
+  return <PixiStage setup={setup} />;
 }
