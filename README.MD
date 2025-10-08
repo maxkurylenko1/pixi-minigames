@@ -3,7 +3,7 @@
 A compact collection of Pixi.js micro‑demos built with **React + TypeScript + Vite**.  
 Each page mounts its own Pixi `Application` and shares a small UI kit (button, preloader), resize manager, and tween helper.
 
-👉 **Live Demo:** [pixi-react-showcase.vercel.app](https://maxkurylenko1.github.io/pixi-minigames/)
+👉 **Live Demo:** [pixi-react-showcase](https://maxkurylenko1.github.io/pixi-minigames/)
 
 ## 🧭 Routes / Demos
 
