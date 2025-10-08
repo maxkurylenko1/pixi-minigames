@@ -18,7 +18,7 @@ import FxPackPage from "../pages/FxPackPage";
  */
 export const router = createBrowserRouter([
   {
-    path: "/",
+    path: "/pixi-minigames/",
     element: <App />,
     children: [
       {
