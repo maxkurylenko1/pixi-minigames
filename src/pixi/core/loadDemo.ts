@@ -1,7 +1,6 @@
 import { Assets, Texture } from "pixi.js";
 import { Preloader } from "@/pixi/ui/Preloader";
 
-// single init for the whole app
 let assetsInitPromise: Promise<void> | null = null;
 async function ensureAssetsInitialized() {
   if (!assetsInitPromise) {
@@ -22,7 +21,6 @@ async function ensureAssetsInitialized() {
       },
     })
       .catch((e) => {
-        // ignore repeated init
         console.warn("[Assets] init:", e?.message ?? e);
       })
       .then(() => void 0);
@@ -30,10 +28,6 @@ async function ensureAssetsInitialized() {
   return assetsInitPromise;
 }
 
-/**
- * Smoothly loads the "demo" bundle.
- * Supports cancellation via AbortSignal to avoid calling a destroyed preloader.
- */
 export async function loadDemoBundle(
   preloader: Preloader,
   opts?: { minShowMs?: number; capRealAt?: number },
@@ -91,13 +85,11 @@ export async function loadDemoBundle(
     console.error("[Assets] loadBundle error:", err);
   }
 
-  // minimum display time
   const elapsed = performance.now() - startedAt;
   if (!aborted && elapsed < minShowMs) {
     await new Promise((r) => setTimeout(r, minShowMs - elapsed));
   }
 
-  // finish to 100%
   target = 1;
   await new Promise<void>((resolve) => {
     const check = () => {
