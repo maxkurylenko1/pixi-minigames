@@ -59,13 +59,13 @@ export default function FxPage() {
         const p = root.toLocal(e.global);
         switch (clickMode) {
           case "confetti":
-            fx.confettiBurst(p.x, p.y, { count: 28 });
+            fx.confettiBurst(p.x, p.y, { count: 60 });
             break;
           case "coins":
             fx.coinBurst(p.x, p.y);
             break;
           case "sparkles":
-            fx.sparkles(p.x, p.y, 70, 24);
+            fx.sparkles(p.x, p.y, 500, 50);
             break;
           case "rays":
             fx.winRays(p.x, p.y);
@@ -102,9 +102,9 @@ export default function FxPage() {
         return b;
       };
 
-      mk("Confetti", cx - 470, "confetti", () => fx.confettiBurst(cx, cy));
+      mk("Confetti", cx - 470, "confetti", () => fx.confettiBurst(cx, cy, { count: 200 }));
       mk("Coins", cx - 280, "coins", () => fx.coinBurst(cx, cy));
-      mk("Sparkles", cx - 90, "sparkles", () => fx.sparkles(cx, cy, 70, 24));
+      mk("Sparkles", cx - 90, "sparkles", () => fx.sparkles(cx, cy, 220, 30));
       mk("Win Rays", cx + 100, "rays", () => fx.winRays(cx, cy));
       mk("Flash+Shake", cx + 290, "flashshake", async () => {
         await fx.flash(0xffffff, 0.35, 240);
