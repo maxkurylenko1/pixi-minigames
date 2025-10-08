@@ -67,7 +67,10 @@ export class Button extends Container {
   static makeBaseTexture(renderer: Renderer, size = 64, radius = 14): Texture {
     const g = new Graphics();
     g.roundRect(0, 0, size, size, radius).fill(0xffffff);
-    g.roundRect(2, 2, size - 4, (size - 4) / 2, Math.max(0, radius - 4)).fill(0xf8f8f8, 0.9);
+    g.roundRect(2, 2, size - 4, (size - 4) / 2, Math.max(0, radius - 4)).fill({
+      color: 0xf8f8f8,
+      alpha: 0.9,
+    });
     const tex = renderer.generateTexture({ target: g });
     g.destroy();
     return tex;
