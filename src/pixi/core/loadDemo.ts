@@ -1,6 +1,10 @@
 import { Assets, Texture } from "pixi.js";
 import { Preloader } from "@/pixi/ui/Preloader";
 
+/**
+ * Initialize the Assets manifest once. Ensures the demo bundle is declared
+ * with cache-busting query params.
+ */
 let assetsInitPromise: Promise<void> | null = null;
 async function ensureAssetsInitialized() {
   if (!assetsInitPromise) {
@@ -28,6 +32,18 @@ async function ensureAssetsInitialized() {
   return assetsInitPromise;
 }
 
+/**
+ * loadDemoBundle
+ *
+ * Loads demo bundle assets while updating a Preloader instance. The function
+ * fakes a smooth progress display and supports an AbortSignal to cancel the
+ * operation early.
+ *
+ * @param preloader Preloader instance to receive progress updates
+ * @param opts optional timing/cap settings: minShowMs, capRealAt
+ * @param signal optional AbortSignal to cancel loading
+ * @returns a Record<string, Texture> with loaded textures (p1..p5)
+ */
 export async function loadDemoBundle(
   preloader: Preloader,
   opts?: { minShowMs?: number; capRealAt?: number },

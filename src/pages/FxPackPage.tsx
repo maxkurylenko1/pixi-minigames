@@ -7,6 +7,15 @@ import { FX } from "@/pixi/fx/FX";
 import { loadDemoBundle } from "@/pixi/core/loadDemo";
 import { Preloader } from "@/pixi/ui/Preloader";
 
+/**
+ * FxPage
+ *
+ * Mounts a PixiStage and provides interactive FX demos.
+ * - Loads demo assets, creates an FX layer and several UI buttons.
+ * - Clicking the scene triggers the selected effect mode.
+ *
+ * Available modes: confetti, coins, sparkles, rays, flashshake, none
+ */
 export default function FxPage() {
   const setup = useCallback(
     async ({ app, root, ui }: { app: Application; root: Container; ui: Container }) => {

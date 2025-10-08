@@ -1,6 +1,17 @@
 import { Container, Graphics, Text, Texture, NineSliceSprite, Renderer } from "pixi.js";
 import { theme } from "@/pixi/styles";
 
+/**
+ * Button UI component
+ *
+ * Small reusable button built from a nine-slice texture.
+ * - Construct with width, height, label and a base texture.
+ * - Provides pointer state tints and a helper makeBaseTexture(renderer) to generate a simple texture.
+ *
+ * Example:
+ * const tex = Button.makeBaseTexture(app.renderer, 64, 14);
+ * const b = new Button({ width: 160, height: 44, label: "Click", texture: tex });
+ */
 export type ButtonOpts = {
   width: number;
   height: number;

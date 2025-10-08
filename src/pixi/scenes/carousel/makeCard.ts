@@ -2,6 +2,16 @@ import { Container, Graphics, Sprite, Text, Texture } from "pixi.js";
 import { ITEM_W, ITEM_H, ITEM_COUNT } from "./constants";
 import { mix, shade } from "../../utils/colors";
 
+/**
+ * makeCard
+ *
+ * Create a card container used by the carousel rail.
+ * - index: item index (used for label)
+ * - icon: optional texture for left-side icon
+ * - color: accent color for the card
+ *
+ * Returns a PIXI.Container with background, marker, optional icon and label.
+ */
 export function makeCard(index: number, icon?: Texture, color: number = 0x4cc9f0) {
   const c = new Container();
 

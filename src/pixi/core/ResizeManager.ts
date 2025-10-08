@@ -1,6 +1,17 @@
 import type { Application } from "pixi.js";
 import { Container } from "pixi.js";
 
+/**
+ * ResizeManager
+ *
+ * Scales and centers a root container to fit the renderer while preserving
+ * a base design resolution (baseW x baseH). Listens to window resize events
+ * and updates root.scale / root.position accordingly.
+ *
+ * Usage:
+ *  const rm = new ResizeManager(app, root, 1280, 720);
+ *  // later: rm.destroy()
+ */
 export class ResizeManager {
   private app: Application;
   private root: Container;

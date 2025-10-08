@@ -17,6 +17,19 @@ import { makeFoilTexture, makeLinearGradientTexture } from "./helpers";
 
 type TexMap = Record<string, Texture | undefined>;
 
+/**
+ * ScratchScene
+ *
+ * Interactive "scratch card" scene.
+ * - Renders a cover layer that the user can scratch off with pointer input.
+ * - Tracks revealed grid cells and updates a percentage label.
+ * - Exposes reset() / revealAll() behavior and cleans up listeners on destroy().
+ *
+ * Usage:
+ *  const scene = new ScratchScene(app, rootContainer, uiContainer);
+ *  await scene.init(textures);
+ *  // later: scene.destroy();
+ */
 export class ScratchScene {
   private app: Application;
   private root: Container;

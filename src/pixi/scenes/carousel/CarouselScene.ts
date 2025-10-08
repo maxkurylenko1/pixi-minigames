@@ -17,6 +17,20 @@ import { makeCard } from "./makeCard";
 
 type SpinState = "idle" | "spinning" | "stopping";
 
+/**
+ * CarouselScene
+ *
+ * Vertical carousel scene used by the demos.
+ * - Creates a masked rail of items (repeated for seamless looping).
+ * - Provides Start/Stop controls and a blur effect while spinning.
+ * - On stop picks a random item, animates to it, pulses the selection and updates the label.
+ *
+ * Basic usage:
+ *  const scene = new CarouselScene(app, root, ui);
+ *  await scene.init(textures);
+ *  // when done
+ *  scene.destroy();
+ */
 export class CarouselScene {
   private app: Application;
   private root: Container;

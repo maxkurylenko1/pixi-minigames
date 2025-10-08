@@ -1,3 +1,12 @@
+/**
+ * Dial constants
+ *
+ * Geometry and visual constants used by the dial scene:
+ * - SECTORS: number of wheel sectors
+ * - OUTER_R / INNER_R: wheel radii
+ * - LABEL_R: radius for label placement
+ * - various style constants used across the scene
+ */
 export const SECTORS = 15;
 export const OUTER_R = 230;
 export const INNER_R = 110;

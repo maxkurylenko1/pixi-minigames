@@ -1,6 +1,19 @@
 import { Container, Graphics, Text } from "pixi.js";
 import { design, theme } from "@/pixi/styles";
 
+/**
+ * Preloader
+ *
+ * Simple fullscreen loading UI with progress bar and label.
+ * - Use `new Preloader()` and add to a container while assets load.
+ * - Call setProgress(p) with p in [0,1] to update the bar and label.
+ *
+ * Example:
+ * const pre = new Preloader();
+ * root.addChild(pre);
+ * pre.setProgress(0.5);
+ * root.removeChild(pre); pre.destroy();
+ */
 export class Preloader extends Container {
   private barBg: Graphics;
   private barFill: Graphics;

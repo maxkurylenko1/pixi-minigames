@@ -5,6 +5,17 @@ import DialPickerPage from "../pages/DialPickerPage";
 import ScratchPage from "../pages/ScratchPage";
 import FxPackPage from "../pages/FxPackPage";
 
+/**
+ * router
+ *
+ * Application route map used by react-router:
+ * - /            -> App (root)
+ *   - index      -> simple chooser
+ *   - /carousel  -> Carousel demo
+ *   - /dial      -> Dial demo
+ *   - /scratch   -> Scratch demo
+ *   - /fx        -> FX Pack demo
+ */
 export const router = createBrowserRouter([
   {
     path: "/",

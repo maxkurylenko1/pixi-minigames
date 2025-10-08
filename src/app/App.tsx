@@ -3,6 +3,16 @@ import { Item } from "../components/NavItem/NavItem";
 import styles from "./App.module.css";
 import "./reset.css";
 
+/**
+ * App (root)
+ *
+ * Renders top navigation and an Outlet for nested routes.
+ * Routes used by the app:
+ *  - /carousel
+ *  - /dial
+ *  - /scratch
+ *  - /fx
+ */
 export default function App() {
   return (
     <div className={styles.app}>
