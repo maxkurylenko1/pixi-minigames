@@ -3,16 +3,7 @@ import { Button } from "@/pixi/ui/Button";
 import { theme, design } from "@/pixi/styles";
 import { tween, ease } from "@/pixi/utils/tween";
 
-import {
-  VIEW_W,
-  VIEW_H,
-  ITEM_H,
-  CELL,
-  ITEM_COUNT,
-  MAX_SPEED,
-  CENTER_LINE_ALPHA,
-  VIVID_30,
-} from "./constants";
+import { VIEW_W, VIEW_H, ITEM_H, CELL, ITEM_COUNT, MAX_SPEED, VIVID_30 } from "./constants";
 import { makeCard } from "./makeCard";
 
 type SpinState = "idle" | "spinning" | "stopping";
@@ -73,13 +64,31 @@ export class CarouselScene {
     this.root.addChild(frame);
 
     this.view.sortableChildren = true;
-    const centerY = VIEW_H / 2;
-    const centerLine = new Graphics()
-      .rect(5, centerY - 1, VIEW_W - 10, 2)
-      .fill({ color: theme.accent, alpha: CENTER_LINE_ALPHA });
-    centerLine.mask = maskG;
-    centerLine.zIndex = 6;
-    this.view.addChild(centerLine);
+
+    const leftArrow = createArrow(18, 0xffffff);
+    leftArrow.x = 19; // позиция по X (например середина контейнера)
+    leftArrow.y = VIEW_H / 2; // позиция по Y
+    leftArrow.rotation = Math.PI / 2;
+    leftArrow.zIndex = 6;
+    leftArrow.mask = maskG;
+    this.view.addChild(leftArrow);
+
+    const rightArrow = createArrow(18, 0xffffff);
+    rightArrow.x = 581; // позиция по X (например середина контейнера)
+    rightArrow.y = VIEW_H / 2; // позиция по Y
+    rightArrow.rotation = Math.PI / -2;
+    rightArrow.zIndex = 6;
+    rightArrow.mask = maskG;
+    this.view.addChild(rightArrow);
+
+    // const centerY = VIEW_H / 2;
+    // const centerLine = new Graphics()
+    //   .rect(5, centerY - 1, VIEW_W - 10, 2)
+    //   .fill({ color: theme.accent, alpha: CENTER_LINE_ALPHA });
+    // centerLine.mask = maskG;
+    // centerLine.zIndex = 6;
+
+    // this.view.addChild(centerLine);
 
     this.rail = new Container();
     this.rail.mask = maskG;
@@ -244,4 +253,20 @@ export class CarouselScene {
       // intentionally ignored
     }
   }
+}
+
+function createArrow(size = 10, color = 0xffffff) {
+  const g = new Graphics();
+
+  g.beginFill(color);
+
+  // треугольник-стрелка (▼)
+  g.moveTo(0, 0); // верхняя точка
+  g.lineTo(size, size); // правая нижняя
+  g.lineTo(-size, size); // левая нижняя
+  g.closePath();
+
+  g.endFill();
+
+  return g;
 }

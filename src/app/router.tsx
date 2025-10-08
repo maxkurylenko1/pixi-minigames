@@ -1,4 +1,4 @@
-import { createBrowserRouter } from "react-router-dom";
+import { createBrowserRouter, Navigate } from "react-router-dom";
 import App from "./App";
 import CarouselPage from "../pages/CarouselPage";
 import DialPickerPage from "../pages/DialPickerPage";
@@ -23,7 +23,7 @@ export const router = createBrowserRouter(
       path: "/",
       element: <App />,
       children: [
-        { index: true, element: <div style={{ padding: 24, color: "#fff" }}>Choose demo</div> },
+        { index: true, element: <Navigate to="/carousel" /> },
         { path: "carousel", element: <CarouselPage /> },
         { path: "dial", element: <DialPickerPage /> },
         { path: "scratch", element: <ScratchPage /> },

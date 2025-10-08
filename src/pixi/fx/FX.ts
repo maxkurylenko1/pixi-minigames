@@ -1,4 +1,4 @@
-import { Application, Container, Sprite, Graphics, Texture, Ticker } from "pixi.js";
+import { Application, Container, Sprite, Graphics, Texture, Ticker, BlurFilter } from "pixi.js";
 import { tween, ease } from "@/pixi/utils/tween";
 import { rectTex, starTex, coinTex } from "./textures";
 
@@ -53,7 +53,7 @@ export class FX {
 
     this.rectSmall = rectTex(10, 16, 0xffffff, 2);
     this.sparkle = starTex(22, 0xffffff, 6);
-    this.coin = coinTex(28);
+    this.coin = coinTex(35);
 
     this.tickerFn = (t) => this.update(t.deltaMS || 16.7);
     this.app.ticker.add(this.tickerFn);
@@ -77,7 +77,7 @@ export class FX {
    * @param opts.count optional particle count
    */
   confettiBurst(x: number, y: number, opts?: { count?: number }) {
-    const count = opts?.count ?? 48;
+    const count = opts?.count ?? 10;
     for (let i = 0; i < count; i++) {
       const s = new Sprite({ texture: this.rectSmall }) as P;
       const col = PALETTE[i % PALETTE.length];
@@ -130,7 +130,7 @@ export class FX {
   /**
    * Spawn a number of sparkles around a point.
    */
-  sparkles(x: number, y: number, radius = 48, count = 18) {
+  sparkles(x: number, y: number, radius = 120, count = 18) {
     for (let i = 0; i < count; i++) {
       const a = Math.random() * Math.PI * 2;
       const r = Math.random() * radius;
@@ -200,9 +200,11 @@ export class FX {
    */
   async flash(color = 0xffffff, alpha = 0.35, duration = 220) {
     const overlay = new Graphics()
-      .rect(0, 0, this.app.renderer.width, this.app.renderer.height)
-      .fill({ color, alpha: 0 });
+      .roundRect(115, 20, this.app.screen.width - 470, this.app.screen.height + 50, 1500)
+      .fill({ color, alpha: 0.6 });
     overlay.zIndex = 9999;
+    const blur = new BlurFilter({ strength: 50, quality: 10 });
+    overlay.filters = [blur];
     this.layer.addChild(overlay);
     await tween({
       from: 0,
