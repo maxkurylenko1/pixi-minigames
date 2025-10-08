@@ -23,14 +23,14 @@ export class ScratchScene {
   private ui: Container;
 
   private view!: Container;
-  private reveal!: Container; // всё, что будет видно через маску
-  private baseBg!: Sprite; // фон во время стирания (внутри reveal → под маской)
-  private winBg!: Sprite; // победный фон; поначалу скрыт, появляется на Reveal
-  private foil!: TilingSprite; // мерцающая «фольга» под маской
-  private cover!: Graphics; // прямоугольник, на нём висит интеракция
+  private reveal!: Container;
+  private baseBg!: Sprite;
+  private winBg!: Sprite;
+  private foil!: TilingSprite;
+  private cover!: Graphics;
   private frame!: Graphics;
 
-  private maskG!: Graphics; // векторная маска (круги кисти)
+  private maskG!: Graphics;
 
   private label!: Text;
   private resetBtn!: Button;
@@ -53,21 +53,18 @@ export class ScratchScene {
   }
 
   async init(textures: TexMap) {
-    // 1) контейнер по центру
     this.view = new Container();
     this.view.position.set((design.width - VIEW_W) / 2, (design.height - VIEW_H) / 2 - 20);
     this.root.addChild(this.view);
 
-    // 2) COVER снизу: прямоугольник (на нём интеракция + хит-область)
     this.cover = new Graphics()
       .roundRect(0, 0, VIEW_W, VIEW_H, 10)
       .fill({ color: 0x222733, alpha: 0.95 });
     this.view.addChild(this.cover);
     this.cover.eventMode = "static";
     this.cover.cursor = "crosshair";
-    this.cover.hitArea = new Rectangle(0, 0, VIEW_W, VIEW_H); // ← ограничиваем инпут
+    this.cover.hitArea = new Rectangle(0, 0, VIEW_W, VIEW_H);
 
-    // 3) FOIL над cover (будет видна сквозь маску)
     const foilTex = makeFoilTexture(96);
     this.foil = new TilingSprite({ texture: foilTex, width: VIEW_W, height: VIEW_H });
     this.foil.alpha = 0.22;
@@ -79,30 +76,26 @@ export class ScratchScene {
     };
     this.app.ticker.add(foilTick);
 
-    // 4) REVEAL: сюда кладём базовый фон, победный фон и (опционально) картинки
     this.reveal = new Container();
     this.view.addChild(this.reveal);
 
-    // 4.1) базовый фон (виден во время стирания)
     this.baseBg = new Sprite({
       texture: makeLinearGradientTexture(VIEW_W, VIEW_H, [
-        [0, 0x0ea5e9], // бирюзовый
-        [1, 0x9333ea], // фиолет
+        [0, 0x0ea5e9],
+        [1, 0x9333ea],
       ]),
     });
     this.reveal.addChild(this.baseBg);
 
-    // 4.2) победный фон (будет поверх baseBg, но с альфой 0 до Reveal)
     this.winBg = new Sprite({
       texture: makeLinearGradientTexture(VIEW_W, VIEW_H, [
-        [0, 0x22c55e], // зелёный
-        [1, 0xf59e0b], // янтарный
+        [0, 0x22c55e],
+        [1, 0xf59e0b],
       ]),
     });
-    this.winBg.alpha = 0; // появится на Reveal
+    this.winBg.alpha = 0;
     this.reveal.addChild(this.winBg);
 
-    // 4.3) произвольный контент (плитка из ассетов) — поверх фонов
     const pics = [textures.p1, textures.p2, textures.p3, textures.p4, textures.p5].filter(
       Boolean
     ) as Texture[];
@@ -124,19 +117,16 @@ export class ScratchScene {
       }
     }
 
-    // 5) МАСКА: одна на foil и reveal → «дырки» видны везде
     this.maskG = new Graphics();
     this.view.addChild(this.maskG);
     this.reveal.mask = this.maskG;
     this.foil.mask = this.maskG;
 
-    // 6) рамка
     this.frame = new Graphics()
       .roundRect(this.view.x - 2, this.view.y - 2, VIEW_W + 4, VIEW_H + 4, 12)
       .stroke({ width: 2, color: 0x2a2f3a });
     this.root.addChild(this.frame);
 
-    // 7) лейбл
     this.label = new Text({
       text: "Scratch to reveal (0%)",
       style: { fill: theme.text, fontSize: 18 },
@@ -146,7 +136,6 @@ export class ScratchScene {
     this.label.resolution = Math.min(2, window.devicePixelRatio || 1);
     this.root.addChild(this.label);
 
-    // 8) кнопки
     const btnTex = Button.makeBaseTexture(this.app.renderer, 64, 14);
     this.resetBtn = new Button({
       width: 120,
@@ -169,18 +158,15 @@ export class ScratchScene {
     this.resetBtn.on("pointerup", () => this.reset());
     this.revealBtn.on("pointerup", () => this.revealAll());
 
-    // 9) инпут — ТОЛЬКО в рамках cover (hitArea), плюс проверка границ
     this.cover.on("pointerdown", (e: FederatedPointerEvent) => this.beginDraw(e));
     this.cover.on("pointermove", (e: FederatedPointerEvent) => this.moveDraw(e));
     this.cover.on("pointerup", () => this.endDraw());
     this.cover.on("pointerupoutside", () => this.endDraw());
 
-    // старт
     this.resetGrid();
     this.clearMask();
     this.updateLabel(0);
 
-    // корректная отписка анимации фольги
     const baseDestroy = this.destroy.bind(this);
     this.destroy = () => {
       this.app.ticker.remove(foilTick);
@@ -188,15 +174,13 @@ export class ScratchScene {
     };
   }
 
-  // --- утиль ---
   private inside(x: number, y: number) {
     return x >= 0 && y >= 0 && x <= VIEW_W && y <= VIEW_H;
   }
   private clearMask() {
-    this.maskG.clear(); // скрыли всё
+    this.maskG.clear();
   }
 
-  // --- прогресс ---
   private resetGrid() {
     this.marked.fill(0);
     this.markedCount = 0;
@@ -233,10 +217,9 @@ export class ScratchScene {
     }
   }
 
-  // --- рисование (только внутри поля) ---
   private stampAt(x: number, y: number) {
     if (!this.inside(x, y)) return;
-    this.maskG.circle(x, y, RADIUS).fill({ color: 0xffffff }); // белым в маску
+    this.maskG.circle(x, y, RADIUS).fill({ color: 0xffffff });
 
     this.markGridCircle(x, y, RADIUS);
     const p = this.gridProgress();
@@ -275,14 +258,12 @@ export class ScratchScene {
     this.lastLocal = null;
   }
 
-  // --- действия ---
   private async revealAll() {
     if (this.disposed) return;
 
     this.maskG.clear();
     this.maskG.rect(0, 0, VIEW_W, VIEW_H).fill({ color: 0xffffff });
 
-    // плавно показываем "победный" фон
     await tween({
       from: this.winBg.alpha,
       to: 1,
@@ -293,7 +274,6 @@ export class ScratchScene {
       },
     });
 
-    // можно немного усилить foil
     await tween({
       from: this.foil.alpha,
       to: 0.3,
@@ -304,7 +284,6 @@ export class ScratchScene {
       },
     });
 
-    // финализируем прогресс
     this.marked.fill(1);
     this.markedCount = this.cols * this.rows;
     this.updateLabel(1);
@@ -315,7 +294,7 @@ export class ScratchScene {
     this.clearMask();
     this.resetGrid();
     this.updateLabel(0);
-    this.winBg.alpha = 0; // спрятать победный фон
+    this.winBg.alpha = 0;
     this.foil.alpha = 0.22;
   }
 

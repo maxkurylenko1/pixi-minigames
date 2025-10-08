@@ -1,18 +1,14 @@
-// helpers рядом с сценой или внизу файла ScratchScene.ts
 import { Texture } from "pixi.js";
 
-/** Foil-текстура без renderer: рисуем на Canvas2D и делаем Texture.from(canvas). */
 export function makeFoilTexture(size = 96): Texture {
   const cvs = document.createElement("canvas");
   cvs.width = size;
   cvs.height = size;
   const ctx = cvs.getContext("2d")!;
 
-  // фон
   ctx.fillStyle = "#1b1f2a";
   ctx.fillRect(0, 0, size, size);
 
-  // диагональные штрихи
   ctx.strokeStyle = "rgba(255,255,255,0.09)";
   ctx.lineWidth = 2;
   for (let x = -size; x < size * 2; x += 8) {
@@ -22,7 +18,6 @@ export function makeFoilTexture(size = 96): Texture {
     ctx.stroke();
   }
 
-  // мягкие блики
   const circle = (cx: number, cy: number, r: number, a: number) => {
     ctx.fillStyle = `rgba(255,255,255,${a})`;
     ctx.beginPath();

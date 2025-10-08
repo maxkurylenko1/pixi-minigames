@@ -52,7 +52,6 @@ export class FX {
     this.effects.clear();
   }
 
-  // ---------- API ----------
   confettiBurst(x: number, y: number, opts?: { count?: number }) {
     const count = opts?.count ?? 48;
     for (let i = 0; i < count; i++) {

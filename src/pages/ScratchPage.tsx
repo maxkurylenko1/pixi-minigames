@@ -1,7 +1,7 @@
 import { useCallback } from "react";
 import PixiStage from "@/components/PixiStage";
 import { Preloader } from "@/pixi/ui/Preloader";
-import { loadDemoBundle } from "@/pixi/core/loadDemo"; // используем те же PNG
+import { loadDemoBundle } from "@/pixi/core/loadDemo";
 import { ScratchScene } from "@/pixi/scenes/scratch/ScratchScene";
 import type { Application, Container, Texture } from "pixi.js";
 

@@ -21,31 +21,27 @@ export default function FxPage() {
       root.addChild(fxLayer);
 
       const fx = new FX(app, fxLayer);
-      // (для отладки удобно)  (window as any).fx = fx;
 
       const cx = design.width / 2;
       const cy = design.height / 2;
 
       const backdrop = new Graphics()
         .rect(0, 0, design.width, design.height)
-        .fill({ color: 0x000000, alpha: 0 }); // прозрачный
+        .fill({ color: 0x000000, alpha: 0 });
       backdrop.eventMode = "static";
       root.addChildAt(backdrop, 0);
 
-      // --- режим клика мышью
       type Mode = "confetti" | "coins" | "sparkles" | "rays" | "flashshake" | "none";
       let clickMode = "none" as Mode;
 
-      // хелпер подсветки активной кнопки
       const allBtns: { mode: Mode; b: Button }[] = [];
       const highlight = () => {
         for (const { mode, b } of allBtns) {
-          b.alpha = clickMode === mode ? 1 : 0.65; // простая подсветка
+          b.alpha = clickMode === mode ? 1 : 0.65;
           b.scale.set(clickMode === mode ? 1.04 : 1);
         }
       };
 
-      // --- обработчик клика по фону
       interface ClickEvent {
         global: { x: number; y: number };
       }
@@ -66,23 +62,20 @@ export default function FxPage() {
             fx.winRays(p.x, p.y);
             break;
           case "flashshake":
-            // здесь позиция не нужна — эффект экранный
             (async () => {
               await fx.flash(0xffffff, 0.35, 240);
               await fx.shake(root, 7, 320);
             })();
             break;
           case "none":
-            break; // ничего не делаем
+            break;
         }
       });
 
-      // 1) UI не пропускает события вверх
       ui.eventMode = "static";
       ui.on("pointerdown", (e) => e.stopPropagation());
       ui.on("pointerup", (e) => e.stopPropagation());
 
-      // кнопки
       const btnTex = Button.makeBaseTexture(app.renderer, 64, 14);
       const mk = (label: string, x: number, mode: Mode, preview?: () => void) => {
         const b = new Button({ width: 160, height: 44, label, texture: btnTex, slice: 12 });
@@ -91,16 +84,15 @@ export default function FxPage() {
         b.on("pointerdown", (e) => e.stopPropagation());
         b.on("pointerup", (e) => {
           e.stopPropagation();
-          clickMode = mode; // переключили режим
+          clickMode = mode;
           highlight();
-          preview?.(); // опционально: показать в центре
+          preview?.();
         });
         ui.addChild(b);
         allBtns.push({ mode, b });
         return b;
       };
 
-      // 2) Кнопки — только центр
       mk("Confetti", cx - 470, "confetti", () => fx.confettiBurst(cx, cy));
       mk("Coins", cx - 280, "coins", () => fx.coinBurst(cx, cy));
       mk("Sparkles", cx - 90, "sparkles", () => fx.sparkles(cx, cy, 70, 24));

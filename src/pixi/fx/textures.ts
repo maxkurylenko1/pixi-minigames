@@ -1,4 +1,3 @@
-// Canvas → Texture генераторы. Без renderer/g.render().
 import { Texture } from "pixi.js";
 
 function toCss(c: number) {
@@ -64,7 +63,6 @@ export function coinTex(size: number) {
   c.width = c.height = size;
   const ctx = c.getContext("2d")!;
   const r = size / 2;
-  // обод
   const g = ctx.createRadialGradient(r, r, r * 0.2, r, r, r);
   g.addColorStop(0, "#ffe27a");
   g.addColorStop(1, "#e0a300");
@@ -73,7 +71,6 @@ export function coinTex(size: number) {
   ctx.arc(r, r, r, 0, Math.PI * 2);
   ctx.fill();
 
-  // блик
   ctx.fillStyle = "rgba(255,255,255,0.25)";
   ctx.beginPath();
   ctx.ellipse(r * 0.7, r * 0.6, r * 0.5, r * 0.25, -0.5, 0, Math.PI * 2);

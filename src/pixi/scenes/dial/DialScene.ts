@@ -21,21 +21,19 @@ export class DialScene {
   private root: Container;
   private ui: Container;
 
-  private dial!: Container; // (0,0) — центр колеса
-  private wheel!: Container; // вращается
-  private indicator!: Graphics; // фиксированная стрелка
+  private dial!: Container;
+  private wheel!: Container;
+  private indicator!: Graphics;
   private label!: Text;
 
-  private colors = VIVID_20; // seed can be changed
+  private colors = VIVID_20;
   private sectorAngle = (Math.PI * 2) / SECTORS;
 
-  // drag → flick
   private dragging = false;
   private dragStartAngle = 0;
   private dragStartRotation = 0;
   private dragStartTime = 0;
 
-  // spin state
   private spinning = false;
 
   constructor(app: Application, root: Container, ui: Container) {
@@ -45,16 +43,13 @@ export class DialScene {
   }
 
   async init() {
-    // 1) центр
     this.dial = new Container();
     this.dial.position.set(design.width / 2, design.height / 2 + CENTER_Y_OFFSET);
     this.root.addChild(this.dial);
 
-    // 2) колесо
     this.wheel = new Container();
     this.dial.addChild(this.wheel);
 
-    // 3) сектора
     for (let i = 0; i < SECTORS; i++) {
       const color = this.colors[i];
       const g = this.makeSlice(i, color);
@@ -71,26 +66,22 @@ export class DialScene {
       this.wheel.addChild(g, t);
     }
 
-    // 4) обод
     const rim = new Graphics()
       .circle(0, 0, OUTER_R)
       .stroke({ width: 2, color: WHEEL_LINE, alpha: 0.9 });
     this.wheel.addChild(rim);
 
-    // 5) центр
     const hub = new Graphics()
       .circle(0, 0, INNER_R - 14)
       .fill(0x151821)
       .stroke({ width: 1, color: 0x2f3545, alpha: 0.9 });
     this.wheel.addChild(hub);
 
-    // 6) индикатор на 12 часов
     this.indicator = new Graphics()
       .poly([0, -OUTER_R - 8, -8, -OUTER_R + 10, 8, -OUTER_R + 10])
       .fill(INDICATOR_COLOR, INDICATOR_ALPHA);
     this.dial.addChild(this.indicator);
 
-    // 7) зона драг-жеста
     const hit = new Graphics().circle(0, 0, OUTER_R + 16).fill(0x000000, 0.001);
     hit.eventMode = "static";
     hit.cursor = "grab";
@@ -100,24 +91,20 @@ export class DialScene {
     hit.on("pointerupoutside", () => this.onPointerUp());
     this.dial.addChild(hit);
 
-    // 8) подпись
     this.label = new Text({ text: "Selected: —", style: { fill: theme.text, fontSize: 20 } });
     this.label.anchor.set(0.5);
     this.label.position.set(design.width / 2, this.dial.y - OUTER_R - 30);
     this.root.addChild(this.label);
 
-    // 9) кнопка Spin
     const btnTex = Button.makeBaseTexture(this.app.renderer, 64, 14);
     const spin = new Button({ width: 160, height: 44, label: "Spin", texture: btnTex, slice: 12 });
     spin.position.set(this.dial.x - 80, this.dial.y + OUTER_R + 18);
     this.ui.addChild(spin);
-    spin.on("pointerup", () => this.spinRandom()); // рандомный спин
+    spin.on("pointerup", () => this.spinRandom());
 
-    // стартовое выравнивание
     await this.snapToIndex(0, false);
   }
 
-  // ---------- геометрия сектора ----------
   private makeSlice(i: number, color: number) {
     const a0 = -Math.PI / 2 + i * this.sectorAngle;
     const a1 = a0 + this.sectorAngle;
@@ -134,7 +121,6 @@ export class DialScene {
       .fill(col)
       .stroke({ width: 2, color: edge, alignment: 0.5 });
 
-    // тонкий делитель у центра
     const mid = a0 + this.sectorAngle / 2;
     g.moveTo(Math.cos(mid) * INNER_R, Math.sin(mid) * INNER_R)
       .lineTo(Math.cos(mid) * (INNER_R + 12), Math.sin(mid) * (INNER_R + 12))
@@ -143,7 +129,6 @@ export class DialScene {
     return g;
   }
 
-  // ---------- drag → flick ----------
   private onPointerDown(e: import("pixi.js").FederatedPointerEvent) {
     if (this.spinning) return; // во время спина блокируем
     const p = this.dial.toLocal(e.global);
@@ -156,39 +141,32 @@ export class DialScene {
 
   private onPointerMove(e: import("pixi.js").FederatedPointerEvent) {
     if (!this.dragging || this.spinning) return;
-    // лёгкий превью-вращение (демпфированное), чтобы был фидбек
     const p = this.dial.toLocal(e.global);
     const ang = Math.atan2(p.y, p.x);
     const delta = ang - this.dragStartAngle;
-    this.wheel.rotation = this.dragStartRotation + delta * 0.25; // 0.25 — демпфер
+    this.wheel.rotation = this.dragStartRotation + delta * 0.25;
   }
 
   private onPointerUp() {
     if (!this.dragging || this.spinning) return;
     this.dragging = false;
 
-    // считаем «скорость жеста» и запускаем спин
     const now = performance.now();
-    const dt = Math.max(1, now - this.dragStartTime); // ms
+    const dt = Math.max(1, now - this.dragStartTime);
     const currentAngle = this.wheel.rotation;
-    const dAngle = currentAngle - this.dragStartRotation; // что успел провернуть превью
-    const velocity = dAngle / dt; // rad/ms
-
-    const minFlick = 0.0001; // порог (экспериментально)
+    const dAngle = currentAngle - this.dragStartRotation;
+    const velocity = dAngle / dt;
+    const minFlick = 0.0001;
     if (Math.abs(velocity) < minFlick) {
-      // если жест слабый — просто рандомный спин в случайную сторону
       const dir: 1 | -1 = Math.random() < 0.5 ? 1 : -1;
       this.spinRandom(dir);
     } else {
-      // направление из жеста, сила → количество оборотов
       const dir: 1 | -1 = velocity > 0 ? 1 : -1;
-      // маппинг скорости к оборотам: 2..6
       const turns = clamp(Math.round(mapRange(Math.abs(velocity), minFlick, 0.02, 2, 6)), 2, 8);
       this.spinRandom(dir, turns);
     }
   }
 
-  // ---------- маппинг индексов / углов ----------
   private rotationToIndex(rot: number) {
     const x = -rot / this.sectorAngle - 0.5;
     let idx = Math.round(x) % SECTORS;
@@ -199,12 +177,10 @@ export class DialScene {
     return -(i + 0.5) * this.sectorAngle;
   }
 
-  // ---------- публичные действия ----------
   private async snapToIndex(i: number, animated: boolean) {
     const target = this.indexToRotation(i);
     if (animated) {
       const from = this.wheel.rotation;
-      // кратчайший путь
       let d = target - from;
       d = ((d + Math.PI) % (Math.PI * 2)) - Math.PI;
       await tween({
@@ -249,11 +225,9 @@ export class DialScene {
     this.spinning = false;
   }
 
-  // ---------- финал приземления ----------
   private async afterLanded(index: number) {
     this.label.text = `Selected: S${String(index + 1).padStart(2, "0")}`;
 
-    // небольшой «пульс» колеса
     await tween({
       from: 1,
       to: 1.06,
@@ -270,7 +244,5 @@ export class DialScene {
     });
   }
 
-  destroy() {
-    // PixiStage уничтожит контейнер; специализированной очистки не требуется
-  }
+  destroy() {}
 }
