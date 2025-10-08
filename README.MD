@@ -23,7 +23,7 @@ npm run dev
 
 Then open:
 
-- http://localhost:5173/carousel (or use the top nav)
+- http://localhost:5173/pixi-minigames/carousel (or use the top nav)
 
 ## 🛠 Tech Stack
 
