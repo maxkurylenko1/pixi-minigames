@@ -1,7 +1,18 @@
 import { Assets, Texture } from "pixi.js";
-import { Preloader } from "../ui/Preloader";
+import { Preloader } from "@/pixi/ui/Preloader";
 
-export async function loadDemoBundle(preloader: Preloader): Promise<Record<string, Texture>> {
+//Initialize manifest and load the demo bundle with a smooth progress animation.
+
+export async function loadDemoBundle(
+  preloader: Preloader,
+  opts?: {
+    minShowMs?: number;
+    capRealAt?: number; // 0..1
+  }
+): Promise<Record<string, Texture>> {
+  const minShowMs = opts?.minShowMs ?? 900;
+  const capRealAt = opts?.capRealAt ?? 0.92;
+
   await Assets.init({
     manifest: {
       bundles: [
@@ -19,13 +30,52 @@ export async function loadDemoBundle(preloader: Preloader): Promise<Record<strin
     },
   });
 
+  let display = 0;
+  let target = 0;
+  let raf = 0;
+  const startedAt = performance.now();
+
+  const tick = () => {
+    const dt = 16;
+    const catchUp = Math.max((target - display) * 0.18, 0);
+    const minStep = 0.0015 * (dt / 16);
+
+    display = Math.min(target, display + catchUp + minStep);
+    preloader.setProgress(display);
+
+    if (display < 1 - 1e-3) {
+      raf = requestAnimationFrame(tick);
+    } else {
+      preloader.setProgress(1);
+      cancelAnimationFrame(raf);
+    }
+  };
+  raf = requestAnimationFrame(tick);
+
+  let loaded: Record<string, Texture> = {};
+
   try {
-    const loaded = await Assets.loadBundle(["demo"], (p) => preloader.setProgress(p));
-    preloader.setProgress(1);
-    return loaded as Record<string, Texture>;
-  } catch (e) {
-    console.error("[Assets] load error", e);
-    preloader.setProgress(1);
-    return {};
+    loaded = (await Assets.loadBundle(["demo"], (p) => {
+      const capped = Math.min(capRealAt, p);
+      if (capped > target) target = capped;
+    })) as Record<string, Texture>;
+  } catch (err) {
+    console.error("[Assets] loadBundle error:", err);
   }
+
+  const elapsed = performance.now() - startedAt;
+  if (elapsed < minShowMs) {
+    await new Promise((r) => setTimeout(r, minShowMs - elapsed));
+  }
+
+  target = 1;
+  await new Promise<void>((resolve) => {
+    const check = () => {
+      if (display >= 1 - 1e-3) resolve();
+      else requestAnimationFrame(check);
+    };
+    requestAnimationFrame(check);
+  });
+
+  return loaded;
 }

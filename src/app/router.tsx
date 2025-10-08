@@ -2,8 +2,8 @@ import { createBrowserRouter } from "react-router-dom";
 import App from "./App";
 import CarouselPage from "../pages/CarouselPage";
 import DialPickerPage from "../pages/DialPickerPage";
-// import ScratchPage from "../pages/ScratchPage";
-// import FxPackPage from "../pages/FxPackPage";
+import ScratchPage from "../pages/ScratchPage";
+import FxPackPage from "../pages/FxPackPage";
 
 export const router = createBrowserRouter([
   {
@@ -16,8 +16,8 @@ export const router = createBrowserRouter([
       },
       { path: "carousel", element: <CarouselPage /> },
       { path: "dial", element: <DialPickerPage /> },
-      // { path: "scratch", element: <ScratchPage /> },
-      // { path: "fx", element: <FxPackPage /> },
+      { path: "scratch", element: <ScratchPage /> },
+      { path: "fx", element: <FxPackPage /> },
     ],
   },
 ]);
