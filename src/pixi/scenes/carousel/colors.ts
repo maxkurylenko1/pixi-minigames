@@ -16,7 +16,7 @@ export function shade(color: number, t: number) {
   return t < 0 ? mix(color, 0x000000, -t) : mix(color, 0xffffff, t);
 }
 
-// аккуратные случайные цвета (детерминированно по seed)
+// exact random colors (specifically by seed)
 export function mulberry32(seed: number) {
   return () => {
     let t = (seed += 0x6d2b79f5);
