@@ -15,7 +15,7 @@ Each page mounts its own Pixi `Application` and shares a small UI kit (button, p
 ## 🚀 Quick Start
 
 ```bash
-git clone https://github.com/your-username/pixi-react-showcase.git
+git clone https://github.com/maxkurylenko1/pixi-minigames.git
 cd pixi-react-showcase
 npm install
 npm run dev
