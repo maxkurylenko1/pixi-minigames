@@ -22,6 +22,7 @@ export default function PixiStage({ setup }: Props) {
       try {
         app = new Application();
         const hostSize = hostRef.current;
+        console.log("[PixiStage] host size:", hostSize);
         if (!hostSize) {
           console.warn("[PixiStage] host div missing");
           return;
