@@ -25,8 +25,6 @@ Then open:
 
 - http://localhost:5173/carousel (or use the top nav)
 
-> Put 3–5 small PNGs into `/public/assets/` (e.g., p1.png..p5.png) for the preloader demo.
-
 ## 🛠 Tech Stack
 
 - **Pixi.js v8** (WebGL renderer)
