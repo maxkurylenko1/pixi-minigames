@@ -11,29 +11,32 @@ import {
   INDICATOR_ALPHA,
   WHEEL_LINE,
   INDICATOR_COLOR,
-  ROTATE_TWEEN_MS,
+  VIVID_20,
 } from "./constants";
-import { buildColors, mix, shade } from "@/pixi/scenes/carousel/colors";
-
-// type SetupTextures = Record<string, Texture | undefined>;
+import { mix, shade } from "@/pixi/utils/colors";
+import { clamp, ensureAhead, mapRange, randInt } from "./helpers";
 
 export class DialScene {
   private app: Application;
   private root: Container;
   private ui: Container;
 
-  private dial!: Container; // centered container (0,0 is dial center)
-  private wheel!: Container; // rotating container (slices & labels)
-  private indicator!: Graphics;
+  private dial!: Container; // (0,0) — центр колеса
+  private wheel!: Container; // вращается
+  private indicator!: Graphics; // фиксированная стрелка
   private label!: Text;
 
-  private colors = buildColors(SECTORS, 123456789);
+  private colors = VIVID_20; // seed can be changed
+  private sectorAngle = (Math.PI * 2) / SECTORS;
 
+  // drag → flick
   private dragging = false;
   private dragStartAngle = 0;
   private dragStartRotation = 0;
+  private dragStartTime = 0;
 
-  private sectorAngle = (Math.PI * 2) / SECTORS;
+  // spin state
+  private spinning = false;
 
   constructor(app: Application, root: Container, ui: Container) {
     this.app = app;
@@ -42,16 +45,16 @@ export class DialScene {
   }
 
   async init() {
-    // 1) Centered dial container
+    // 1) центр
     this.dial = new Container();
     this.dial.position.set(design.width / 2, design.height / 2 + CENTER_Y_OFFSET);
     this.root.addChild(this.dial);
 
-    // 2) Rotating wheel
+    // 2) колесо
     this.wheel = new Container();
     this.dial.addChild(this.wheel);
 
-    // 3) Build slices
+    // 3) сектора
     for (let i = 0; i < SECTORS; i++) {
       const color = this.colors[i];
       const g = this.makeSlice(i, color);
@@ -64,30 +67,30 @@ export class DialScene {
       const ac = a0 + this.sectorAngle / 2;
       t.anchor.set(0.5);
       t.position.set(Math.cos(ac) * LABEL_R, Math.sin(ac) * LABEL_R);
-      t.rotation = ac + Math.PI / 2;
+      t.rotation = ac + Math.PI / 2; // текст остаётся вертикальным
       this.wheel.addChild(g, t);
     }
 
-    // 4) Rim (thin outline)
+    // 4) обод
     const rim = new Graphics()
       .circle(0, 0, OUTER_R)
       .stroke({ width: 2, color: WHEEL_LINE, alpha: 0.9 });
     this.wheel.addChild(rim);
 
-    // 5) Center hub
+    // 5) центр
     const hub = new Graphics()
       .circle(0, 0, INNER_R - 14)
       .fill(0x151821)
       .stroke({ width: 1, color: 0x2f3545, alpha: 0.9 });
     this.wheel.addChild(hub);
 
-    // 6) Fixed indicator at 12 o'clock (doesn't rotate)
+    // 6) индикатор на 12 часов
     this.indicator = new Graphics()
       .poly([0, -OUTER_R - 8, -8, -OUTER_R + 10, 8, -OUTER_R + 10])
       .fill(INDICATOR_COLOR, INDICATOR_ALPHA);
     this.dial.addChild(this.indicator);
 
-    // 7) Drag hit area
+    // 7) зона драг-жеста
     const hit = new Graphics().circle(0, 0, OUTER_R + 16).fill(0x000000, 0.001);
     hit.eventMode = "static";
     hit.cursor = "grab";
@@ -97,40 +100,31 @@ export class DialScene {
     hit.on("pointerupoutside", () => this.onPointerUp());
     this.dial.addChild(hit);
 
-    // 8) Selected label
-    this.label = new Text({
-      text: "Selected: —",
-      style: { fill: theme.text, fontSize: 20 },
-    });
+    // 8) подпись
+    this.label = new Text({ text: "Selected: —", style: { fill: theme.text, fontSize: 20 } });
     this.label.anchor.set(0.5);
     this.label.position.set(design.width / 2, this.dial.y - OUTER_R - 30);
     this.root.addChild(this.label);
 
-    // 9) Controls
+    // 9) кнопка Spin
     const btnTex = Button.makeBaseTexture(this.app.renderer, 64, 14);
-    const prev = new Button({ width: 120, height: 40, label: "Prev", texture: btnTex, slice: 12 });
-    const next = new Button({ width: 120, height: 40, label: "Next", texture: btnTex, slice: 12 });
+    const spin = new Button({ width: 160, height: 44, label: "Spin", texture: btnTex, slice: 12 });
+    spin.position.set(this.dial.x - 80, this.dial.y + OUTER_R + 18);
+    this.ui.addChild(spin);
+    spin.on("pointerup", () => this.spinRandom()); // рандомный спин
 
-    prev.position.set(this.dial.x - 140, this.dial.y + OUTER_R + 18);
-    next.position.set(this.dial.x + 20, this.dial.y + OUTER_R + 18);
-
-    this.ui.addChild(prev, next);
-
-    prev.on("pointerup", () => this.nudge(-1));
-    next.on("pointerup", () => this.nudge(1));
-
-    // Initial snap to sector 1
+    // стартовое выравнивание
     await this.snapToIndex(0, false);
   }
 
-  // Slice (donut sector)
+  // ---------- геометрия сектора ----------
   private makeSlice(i: number, color: number) {
     const a0 = -Math.PI / 2 + i * this.sectorAngle;
     const a1 = a0 + this.sectorAngle;
     const g = new Graphics();
 
-    const col = mix(0x1a1f2a, color, 0.2);
-    const edge = shade(col, -0.18);
+    const col = mix(0x1a1f2a, color, 0.6);
+    const edge = shade(col, 0.2);
 
     g.moveTo(Math.cos(a0) * OUTER_R, Math.sin(a0) * OUTER_R)
       .arc(0, 0, OUTER_R, a0, a1)
@@ -138,39 +132,63 @@ export class DialScene {
       .arc(0, 0, INNER_R, a1, a0, true)
       .closePath()
       .fill(col)
-      .stroke({ width: 1, color: edge, alignment: 0.5 });
+      .stroke({ width: 2, color: edge, alignment: 0.5 });
 
-    // tiny divider line towards the center (for visual rhythm)
+    // тонкий делитель у центра
     const mid = a0 + this.sectorAngle / 2;
     g.moveTo(Math.cos(mid) * INNER_R, Math.sin(mid) * INNER_R)
       .lineTo(Math.cos(mid) * (INNER_R + 12), Math.sin(mid) * (INNER_R + 12))
-      .stroke({ width: 1, color: shade(edge, -0.1), alpha: 0.5 });
+      .stroke({ width: 2, color: shade(edge, -0.1), alpha: 0.5 });
 
     return g;
   }
 
-  // Dragging
+  // ---------- drag → flick ----------
   private onPointerDown(e: import("pixi.js").FederatedPointerEvent) {
+    if (this.spinning) return; // во время спина блокируем
     const p = this.dial.toLocal(e.global);
     this.dragStartAngle = Math.atan2(p.y, p.x);
     this.dragStartRotation = this.wheel.rotation;
+    this.dragStartTime = performance.now();
     this.dragging = true;
     (e.currentTarget as { cursor: string }).cursor = "grabbing";
   }
+
   private onPointerMove(e: import("pixi.js").FederatedPointerEvent) {
-    if (!this.dragging) return;
+    if (!this.dragging || this.spinning) return;
+    // лёгкий превью-вращение (демпфированное), чтобы был фидбек
     const p = this.dial.toLocal(e.global);
     const ang = Math.atan2(p.y, p.x);
     const delta = ang - this.dragStartAngle;
-    this.wheel.rotation = this.dragStartRotation + delta;
-  }
-  private onPointerUp() {
-    if (!this.dragging) return;
-    this.dragging = false;
-    this.snapToNearest();
+    this.wheel.rotation = this.dragStartRotation + delta * 0.25; // 0.25 — демпфер
   }
 
-  // Compute nearest index from current rotation; 12 o'clock is selection
+  private onPointerUp() {
+    if (!this.dragging || this.spinning) return;
+    this.dragging = false;
+
+    // считаем «скорость жеста» и запускаем спин
+    const now = performance.now();
+    const dt = Math.max(1, now - this.dragStartTime); // ms
+    const currentAngle = this.wheel.rotation;
+    const dAngle = currentAngle - this.dragStartRotation; // что успел провернуть превью
+    const velocity = dAngle / dt; // rad/ms
+
+    const minFlick = 0.0001; // порог (экспериментально)
+    if (Math.abs(velocity) < minFlick) {
+      // если жест слабый — просто рандомный спин в случайную сторону
+      const dir: 1 | -1 = Math.random() < 0.5 ? 1 : -1;
+      this.spinRandom(dir);
+    } else {
+      // направление из жеста, сила → количество оборотов
+      const dir: 1 | -1 = velocity > 0 ? 1 : -1;
+      // маппинг скорости к оборотам: 2..6
+      const turns = clamp(Math.round(mapRange(Math.abs(velocity), minFlick, 0.02, 2, 6)), 2, 8);
+      this.spinRandom(dir, turns);
+    }
+  }
+
+  // ---------- маппинг индексов / углов ----------
   private rotationToIndex(rot: number) {
     const x = -rot / this.sectorAngle - 0.5;
     let idx = Math.round(x) % SECTORS;
@@ -181,32 +199,61 @@ export class DialScene {
     return -(i + 0.5) * this.sectorAngle;
   }
 
-  private async snapToNearest() {
-    const targetIndex = this.rotationToIndex(this.wheel.rotation);
-    await this.snapToIndex(targetIndex, true);
-  }
-
+  // ---------- публичные действия ----------
   private async snapToIndex(i: number, animated: boolean) {
     const target = this.indexToRotation(i);
     if (animated) {
       const from = this.wheel.rotation;
+      // кратчайший путь
+      let d = target - from;
+      d = ((d + Math.PI) % (Math.PI * 2)) - Math.PI;
       await tween({
         from: 0,
         to: 1,
-        duration: ROTATE_TWEEN_MS,
+        duration: 450,
         ease: ease.cubicOut,
-        onUpdate: (t) => {
-          // shortest path
-          let d = target - from;
-          d = ((d + Math.PI) % (Math.PI * 2)) - Math.PI;
-          this.wheel.rotation = from + d * t;
-        },
+        onUpdate: (t) => (this.wheel.rotation = from + d * t),
       });
     } else {
       this.wheel.rotation = target;
     }
-    this.label.text = `Selected: S${String(i + 1).padStart(2, "0")}`;
-    // quick pulse on selection
+    this.afterLanded(i);
+  }
+
+  private async spinRandom(dir?: 1 | -1, extraTurns?: number) {
+    if (this.spinning) return;
+    this.spinning = true;
+
+    const targetIndex = Math.floor(Math.random() * SECTORS);
+    const base = this.indexToRotation(targetIndex);
+
+    const direction: 1 | -1 = dir ?? (Math.random() < 0.5 ? 1 : -1);
+    const turns = extraTurns ?? randInt(2, 5);
+
+    const destBase = ensureAhead(this.wheel.rotation, base, direction);
+    const dest = destBase + direction * (Math.PI * 2) * turns;
+
+    const distance = Math.abs(dest - this.wheel.rotation);
+    const duration = clamp(900 + distance * 180, 1400, 3600);
+
+    const from = this.wheel.rotation;
+    await tween({
+      from: 0,
+      to: 1,
+      duration,
+      ease: ease.cubicInOut,
+      onUpdate: (t) => (this.wheel.rotation = from + (dest - from) * t),
+    });
+
+    this.afterLanded(targetIndex);
+    this.spinning = false;
+  }
+
+  // ---------- финал приземления ----------
+  private async afterLanded(index: number) {
+    this.label.text = `Selected: S${String(index + 1).padStart(2, "0")}`;
+
+    // небольшой «пульс» колеса
     await tween({
       from: 1,
       to: 1.06,
@@ -223,13 +270,7 @@ export class DialScene {
     });
   }
 
-  private async nudge(dir: 1 | -1) {
-    const i = this.rotationToIndex(this.wheel.rotation);
-    const next = (i + (dir === 1 ? 1 : -1) + SECTORS) % SECTORS;
-    await this.snapToIndex(next, true);
-  }
-
   destroy() {
-    // nothing special; wheel is removed with parent container in PixiStage cleanup
+    // PixiStage уничтожит контейнер; специализированной очистки не требуется
   }
 }

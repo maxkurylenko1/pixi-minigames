@@ -1,13 +1,13 @@
 import { Container, Graphics, Sprite, Text, Texture } from "pixi.js";
 import { ITEM_W, ITEM_H, ITEM_COUNT } from "./constants";
-import { mix, shade } from "./colors";
+import { mix, shade } from "../../utils/colors";
 
 export function makeCard(index: number, icon?: Texture, color: number = 0x4cc9f0) {
   const c = new Container();
 
-  const bgCol = mix(0x1a1f2a, color, 0.18);
-  const edgeCol = shade(bgCol, -0.15);
-  const leftCol = mix(color, 0x10131a, 0.25);
+  const bgCol = mix(0x1a1f2a, color, 0.4);
+  const edgeCol = shade(bgCol, 0.15);
+  const leftCol = mix(color, 0x10131a, 0.1);
 
   // Card background
   const bg = new Graphics()
@@ -31,7 +31,7 @@ export function makeCard(index: number, icon?: Texture, color: number = 0x4cc9f0
   const markerSize = 20;
   const marker = new Graphics()
     .rect(-markerSize / 2, -markerSize / 2, markerSize, markerSize)
-    .fill(shade(color, 0.35))
+    .fill(shade(color, 0.7))
     .stroke({ width: 1, color: shade(color, -0.25) });
   marker.position.set(32, ITEM_H / 2); // center of the left block (64px wide)
   c.addChild(marker);

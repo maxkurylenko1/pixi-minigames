@@ -11,8 +11,8 @@ import {
   ITEM_COUNT,
   MAX_SPEED,
   CENTER_LINE_ALPHA,
+  VIVID_30,
 } from "./constants";
-import { buildColors } from "./colors";
 import { makeCard } from "./makeCard";
 
 type SpinState = "idle" | "spinning" | "stopping";
@@ -36,7 +36,7 @@ export class CarouselScene {
   private speed = 0;
 
   private logicalItems: Container[] = [];
-  private colors = buildColors(ITEM_COUNT, 12345); // seed can be changed
+  private colors = VIVID_30; // seed can be changed
 
   constructor(app: Application, root: Container, ui: Container) {
     this.app = app;
