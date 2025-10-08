@@ -16,19 +16,20 @@ import FxPackPage from "../pages/FxPackPage";
  *   - /scratch   -> Scratch demo
  *   - /fx        -> FX Pack demo
  */
-export const router = createBrowserRouter([
-  {
-    path: "/pixi-minigames/",
-    element: <App />,
-    children: [
-      {
-        index: true,
-        element: <div style={{ padding: 24, color: "#fff" }}>Choose demo</div>,
-      },
-      { path: "carousel", element: <CarouselPage /> },
-      { path: "dial", element: <DialPickerPage /> },
-      { path: "scratch", element: <ScratchPage /> },
-      { path: "fx", element: <FxPackPage /> },
-    ],
-  },
-]);
+
+export const router = createBrowserRouter(
+  [
+    {
+      path: "/",
+      element: <App />,
+      children: [
+        { index: true, element: <div style={{ padding: 24, color: "#fff" }}>Choose demo</div> },
+        { path: "carousel", element: <CarouselPage /> },
+        { path: "dial", element: <DialPickerPage /> },
+        { path: "scratch", element: <ScratchPage /> },
+        { path: "fx", element: <FxPackPage /> },
+      ],
+    },
+  ],
+  { basename: "/pixi-minigames" }
+);
