@@ -17,10 +17,18 @@ export default function App() {
   return (
     <div className={styles.app}>
       <header className={styles.header}>
-        <Item to="/carousel">Carousel</Item>
-        <Item to="/dial">Dial</Item>
-        <Item to="/scratch">Scratch</Item>
-        <Item to="/fx">FX Pack</Item>
+        <Item to="/carousel" name="carousel">
+          Carousel
+        </Item>
+        <Item to="/dial" name="dial">
+          Dial
+        </Item>
+        <Item to="/scratch" name="scratch">
+          Scratch
+        </Item>
+        <Item to="/fx" name="fx">
+          FX Pack
+        </Item>
       </header>
       <main className={styles.main}>
         <Outlet />

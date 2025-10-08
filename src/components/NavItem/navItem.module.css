@@ -10,3 +10,9 @@
   border: 1px solid #2a2f3a;
   max-width: 100px;
 }
+
+.active {
+  background: var(--accent);
+  color: #0e0f13;
+  border: 1px solid var(--accent);
+}
