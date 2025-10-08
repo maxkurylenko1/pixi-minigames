@@ -27,7 +27,13 @@ export default function PixiStage({ setup }: Props) {
           return;
         }
 
-        await app.init({ backgroundColor: theme.bg, resizeTo: hostSize, antialias: true });
+        await app.init({
+          backgroundColor: theme.bg,
+          resizeTo: hostSize,
+          antialias: false,
+          autoDensity: true,
+          resolution: Math.min(window.devicePixelRatio, 2),
+        });
 
         if (cancelled) {
           try {

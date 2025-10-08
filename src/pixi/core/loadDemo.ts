@@ -33,8 +33,8 @@ export async function loadDemoBundle(
   opts?: { minShowMs?: number; capRealAt?: number },
   signal?: AbortSignal
 ): Promise<Record<string, Texture>> {
-  const minShowMs = opts?.minShowMs ?? 900;
-  const capRealAt = opts?.capRealAt ?? 0.92;
+  const minShowMs = opts?.minShowMs ?? Math.round(500 + Math.random() * 700);
+  const capRealAt = opts?.capRealAt ?? Number((Math.random() / 2.5 + 0.2).toFixed(2));
 
   await ensureAssetsInitialized();
 

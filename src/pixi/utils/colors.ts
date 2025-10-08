@@ -1,4 +1,3 @@
-// === color utils ===
 export function mix(a: number, b: number, t: number) {
   const ar = (a >> 16) & 255,
     ag = (a >> 8) & 255,

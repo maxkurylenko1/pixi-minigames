@@ -36,7 +36,7 @@ export class CarouselScene {
   private speed = 0;
 
   private logicalItems: Container[] = [];
-  private colors = VIVID_30; // seed can be changed
+  private colors = VIVID_30;
 
   constructor(app: Application, root: Container, ui: Container) {
     this.app = app;
@@ -45,7 +45,6 @@ export class CarouselScene {
   }
 
   async init(textures: Record<string, Texture | undefined>) {
-    // 1) window, mask, frame
     this.view = new Container();
     this.root.addChild(this.view);
 
@@ -59,7 +58,6 @@ export class CarouselScene {
       .stroke({ width: 2, color: 0x2a2f3a });
     this.root.addChild(frame);
 
-    // 2) center line
     this.view.sortableChildren = true;
     const centerY = VIEW_H / 2;
     const centerLine = new Graphics()
@@ -69,7 +67,6 @@ export class CarouselScene {
     centerLine.zIndex = 6;
     this.view.addChild(centerLine);
 
-    // 3) rail under mask
     this.rail = new Container();
     this.rail.mask = maskG;
     this.view.addChild(this.rail);
@@ -96,9 +93,7 @@ export class CarouselScene {
 
     this.rail.y = this.alignY;
     this.blur = new BlurFilter({ strength: 0, quality: 2 });
-    this.rail.filters = [this.blur];
 
-    // 4) UI: buttons + label
     const btnTex = Button.makeBaseTexture(this.app.renderer, 64, 14);
     this.startBtn = new Button({
       width: 140,
@@ -125,7 +120,6 @@ export class CarouselScene {
     this.label.position.set(this.view.x + VIEW_W / 2, this.view.y - 24);
     this.ui.addChild(this.label);
 
-    // 5) event handlers
     this.startBtn.on("pointerup", () => this.start());
     this.stopBtn.on("pointerup", () => this.stop());
   }
@@ -142,6 +136,7 @@ export class CarouselScene {
     this.state = "spinning";
     this.startBtn.eventMode = "none";
     this.stopBtn.eventMode = "none";
+    this.rail.filters = [this.blur];
 
     await tween({
       from: 0,
